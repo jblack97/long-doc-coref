@@ -1,5 +1,6 @@
 import torch
 import json
+import pdb
 from transformers import BertTokenizer, BertTokenizerFast
 from auto_memory_model.utils import action_sequences_to_clusters
 from auto_memory_model.controller.utils import pick_controller
@@ -43,6 +44,7 @@ class Inference:
         subtoken_map = tokenized_doc["subtoken_map"]
 
         with torch.no_grad():
+            pdb.set_trace()
             _, pred_actions, pred_mentions, _ = self.model(tokenized_doc)
 
         idx_clusters = action_sequences_to_clusters(pred_actions, pred_mentions)
