@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import pdb
 from document_encoder.independent import IndependentDocEncoder
 from document_encoder.overlap import OverlapDocEncoder
 from pytorch_utils.modules import MLP
@@ -155,7 +155,7 @@ class BaseController(nn.Module):
         # Sort the predicted mentions
         pred_mentions = list(zip(pred_starts.tolist(), pred_ends.tolist()))
         pred_scores = torch.unbind(torch.unsqueeze(pred_scores, dim=1))
-
+        pdb.set_trace()
         if "clusters" in example:
             gt_actions = self.get_actions(pred_mentions, example["clusters"])
         else:
