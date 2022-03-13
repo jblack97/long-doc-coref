@@ -44,7 +44,7 @@ class Inference:
         subtoken_map = tokenized_doc["subtoken_map"]
 
         with torch.no_grad():
-            pdb.set_trace()
+            #pdb.set_trace()
             _, pred_actions, pred_mentions, _ = self.model(tokenized_doc)
 
         idx_clusters = action_sequences_to_clusters(pred_actions, pred_mentions)
