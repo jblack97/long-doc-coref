@@ -61,7 +61,7 @@ class BaseController(nn.Module):
         self.loss_fn = {}
 
     def get_span_embeddings(self, encoded_doc, ment_starts, ment_ends):
-        pdb.set_trace()
+        #pdb.set_trace()
         span_emb_list = [encoded_doc[ment_starts, :], encoded_doc[ment_ends, :]]
         # Add span width embeddings
         span_width_indices = ment_ends - ment_starts
