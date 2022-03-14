@@ -88,7 +88,7 @@ class BaseController(nn.Module):
                 output = ((doc_range >= torch.unsqueeze(ment_starts[indices[idx-1] : indices[idx]], dim=1)) &
                                       (doc_range <= torch.unsqueeze(ment_ends[indices[idx-1] :indices[idx]], dim=1)))
                 ment_masks = torch.cat((ment_masks, output))
-                print(ment_masks.shape)
+                
               if (idx == len(indices) - 1) & (indices[idx] != num_c):
                 doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c - indices[idx] , 1)
                 output = ((doc_range >= torch.unsqueeze(ment_starts[indices[idx] : num_c], dim=1)) &
