@@ -61,6 +61,7 @@ class BaseController(nn.Module):
         self.loss_fn = {}
 
     def get_span_embeddings(self, encoded_doc, ment_starts, ment_ends):
+        pdb.set_trace()
         span_emb_list = [encoded_doc[ment_starts, :], encoded_doc[ment_ends, :]]
         # Add span width embeddings
         span_width_indices = ment_ends - ment_starts
@@ -155,7 +156,6 @@ class BaseController(nn.Module):
         # Sort the predicted mentions
         pred_mentions = list(zip(pred_starts.tolist(), pred_ends.tolist()))
         pred_scores = torch.unbind(torch.unsqueeze(pred_scores, dim=1))
-        pdb.set_trace()
         if "clusters" in example:
             gt_actions = self.get_actions(pred_mentions, example["clusters"])
         else:
