@@ -147,7 +147,7 @@ class BaseController(nn.Module):
         num_words = encoded_doc.shape[0]
 
         filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
-        pdb.set_trace()
+        #pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
 
         mention_logits = torch.squeeze(self.mention_mlp(span_embs), dim=-1)
