@@ -147,7 +147,7 @@ class BaseController(nn.Module):
 
     def get_pred_mentions(self, example, encoded_doc):
         num_words = encoded_doc.shape[0]
-
+        
         filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
         #pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
@@ -172,6 +172,7 @@ class BaseController(nn.Module):
 
     def get_mention_embs_and_actions(self, example):
         encoded_doc = self.doc_encoder(example)
+        pdb.set_trace()
         pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc)
 
         # Sort the predicted mentions
