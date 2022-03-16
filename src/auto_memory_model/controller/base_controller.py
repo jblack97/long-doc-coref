@@ -61,7 +61,7 @@ class BaseController(nn.Module):
         self.loss_fn = {}
 
     def get_span_embeddings(self, encoded_doc, ment_starts, ment_ends):
-        pdb.set_trace()
+        #pdb.set_trace()
         span_emb_list = [encoded_doc[ment_starts, :], encoded_doc[ment_ends, :]]
         # Add span width embeddings
         span_width_indices = ment_ends - ment_starts
@@ -72,10 +72,10 @@ class BaseController(nn.Module):
             num_words = encoded_doc.shape[0]  # T
             num_c = ment_starts.shape[0]  # C
             
-            #doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c, 1).to(self.device)  # [C x T]
-            #ment_masks = ((doc_range >= torch.unsqueeze(ment_starts, dim=1)) &
-            #              (doc_range <= torch.unsqueeze(ment_ends, dim=1)))  # [C x T]
-            max_mem = 500000000/2
+            doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c, 1).to(self.device)  # [C x T]
+            ment_masks = ((doc_range >= torch.unsqueeze(ment_starts, dim=1)) &
+                          (doc_range <= torch.unsqueeze(ment_ends, dim=1)))  # [C x T]
+            '''max_mem = 500000000/2
             splits = int(num_c*num_words//max_mem)
             indices = [(num_c//splits)*i for i in range(1,splits+1)]
             doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c//splits, 1)
@@ -94,6 +94,8 @@ class BaseController(nn.Module):
                 output = ((doc_range >= torch.unsqueeze(ment_starts[indices[idx] : num_c], dim=1)) &
                                       (doc_range <= torch.unsqueeze(ment_ends[indices[idx] :num_c], dim=1)))
                 ment_masks = torch.cat((ment_masks, output))
+                del output
+                '''
             del doc_range
             del ment_starts
             del ment_ends
