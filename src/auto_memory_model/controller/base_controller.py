@@ -75,27 +75,7 @@ class BaseController(nn.Module):
             doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c, 1).to(self.device)  # [C x T]
             ment_masks = ((doc_range >= torch.unsqueeze(ment_starts, dim=1)) &
                           (doc_range <= torch.unsqueeze(ment_ends, dim=1)))  # [C x T]
-            '''max_mem = 500000000/2
-            splits = int(num_c*num_words//max_mem)
-            indices = [(num_c//splits)*i for i in range(1,splits+1)]
-            doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c//splits, 1)
-
-            for idx in range(len(indices)):
-              if idx == 0:
-                ment_masks = ((doc_range >= torch.unsqueeze(ment_starts[:indices[idx]], dim=1)) &
-                                      (doc_range <= torch.unsqueeze(ment_ends[:indices[idx]], dim=1)))
-              else:
-                output = ((doc_range >= torch.unsqueeze(ment_starts[indices[idx-1] : indices[idx]], dim=1)) &
-                                      (doc_range <= torch.unsqueeze(ment_ends[indices[idx-1] :indices[idx]], dim=1)))
-                ment_masks = torch.cat((ment_masks, output))
-                
-              if (idx == len(indices) - 1) & (indices[idx] != num_c):
-                doc_range = torch.unsqueeze(torch.arange(num_words), 0).repeat(num_c - indices[idx] , 1)
-                output = ((doc_range >= torch.unsqueeze(ment_starts[indices[idx] : num_c], dim=1)) &
-                                      (doc_range <= torch.unsqueeze(ment_ends[indices[idx] :num_c], dim=1)))
-                ment_masks = torch.cat((ment_masks, output))
-                del output
-                '''
+        
             del doc_range
             del ment_starts
             del ment_ends
@@ -148,7 +128,8 @@ class BaseController(nn.Module):
     def get_pred_mentions(self, example, encoded_doc):
         num_words = encoded_doc.shape[0]
         
-        filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
+        
+        
         #pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
 
@@ -172,9 +153,57 @@ class BaseController(nn.Module):
 
     def get_mention_embs_and_actions(self, example):
         encoded_doc = self.doc_encoder(example)
-        pdb.set_trace()
-        pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc)
+        filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
+        
+        seg_length = 5000
+        N = encoded_doc.shape[0]
+        splits = int(N//seg_length)
+        indices = [seg_length*i for i in range(1,splits+1)]
 
+        for idx in range(len(indices)):
+          if idx == 0:
+            enc_doc_seg = encoded_doc[:indices[idx]+10]
+            #filter out candidate starts >= indices[idx]
+            cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
+            cand_ends = filt_cand_ends[ (filt_cand_starts < indices[idx])]
+
+            #do get_pred_mention, create variable for mentions
+            pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
+
+          else:
+            #filter out candidate starts <indices[idx - 1]
+            #filter out candidate starts >= indices[idx]
+
+            enc_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
+            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
+            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
+            #convert indices to segment indices  
+            cand_starts -= indices[idx - 1] - 10
+            cand_ends -= indices[idx - 1] - 10
+            
+            # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
+            pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
+            #concatenate outputs
+            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 10))
+            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 10))
+            pred_scores = torch.cat((pred_scores, pred_scores_seg))
+          if (idx == indices[-1]) & (indices[idx] != N):
+            enc_doc_seg = encoded_doc[indices[idx - 1] - 10 :]
+
+            #filter out candidate starts <indices[idx - 1]
+            enc_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
+            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) ]
+            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1])]
+            
+            
+            # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
+            pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
+            #concatenate outputs
+            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 10))
+            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 10))
+            pred_scores = torch.cat((pred_scores, pred_scores_seg))
+
+       
         # Sort the predicted mentions
         pred_mentions = list(zip(pred_starts.tolist(), pred_ends.tolist()))
         pred_scores = torch.unbind(torch.unsqueeze(pred_scores, dim=1))
