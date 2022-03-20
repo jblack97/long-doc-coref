@@ -125,7 +125,7 @@ class BaseController(nn.Module):
         filt_cand_ends = cand_ends.reshape(-1)[flat_cand_mask]  # (num_candidates,)
         return filt_cand_starts, filt_cand_ends
 
-    def get_pred_mentions(self, example, encoded_doc):
+    def get_pred_mentions(self, example, encoded_doc, filt_cand_starts, filt_cand_ends):
         num_words = encoded_doc.shape[0]
         
         
@@ -162,7 +162,7 @@ class BaseController(nn.Module):
         pdb.set_trace()
         for idx in range(len(indices)):
           if idx == 0:
-            enc_doc_seg = encoded_doc[:indices[idx]+10]
+            encoded_doc_seg = encoded_doc[:indices[idx]+10]
             #filter out candidate starts >= indices[idx]
             cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
             cand_ends = filt_cand_ends[ (filt_cand_starts < indices[idx])]
