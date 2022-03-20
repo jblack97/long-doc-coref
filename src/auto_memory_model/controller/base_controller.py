@@ -159,7 +159,7 @@ class BaseController(nn.Module):
         N = encoded_doc.shape[0]
         splits = int(N//seg_length)
         indices = [seg_length*i for i in range(1,splits+1)]
-
+        pdb.set_trace()
         for idx in range(len(indices)):
           if idx == 0:
             enc_doc_seg = encoded_doc[:indices[idx]+10]
