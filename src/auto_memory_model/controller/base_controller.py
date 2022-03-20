@@ -174,7 +174,7 @@ class BaseController(nn.Module):
             #filter out candidate starts <indices[idx - 1]
             #filter out candidate starts >= indices[idx]
 
-            enc_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
+            encoded_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
             cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
             cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
             #convert indices to segment indices  
@@ -191,7 +191,7 @@ class BaseController(nn.Module):
             enc_doc_seg = encoded_doc[indices[idx - 1] - 10 :]
 
             #filter out candidate starts <indices[idx - 1]
-            enc_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
+            encoded_doc_seg = encoded_doc[indices[idx - 1] - 10 : indices[idx] + 10]
             cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) ]
             cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1])]
             
