@@ -11,7 +11,7 @@ class BaseController(nn.Module):
                  dropout_rate=0.5, max_span_width=20, top_span_ratio=0.4,
                  ment_emb='endpoint', doc_enc='independent', mlp_size=1000,
                  emb_size=20, sample_invalid=1.0, label_smoothing_wt=0.0,
-                 dataset='litbank', device='cuda', **kwargs):
+                 dataset='litbank', device='cuda',segmented = True, **kwargs):
         super(BaseController, self).__init__()
 
         self.device = device
@@ -59,7 +59,8 @@ class BaseController(nn.Module):
 
         self.memory_net = None
         self.loss_fn = {}
-
+        self.segmented == segmented
+        
     def get_span_embeddings(self, encoded_doc, ment_starts, ment_ends):
         #pdb.set_trace()
         span_emb_list = [encoded_doc[ment_starts, :], encoded_doc[ment_ends, :]]
@@ -152,64 +153,66 @@ class BaseController(nn.Module):
         return topk_starts[sorted_indices], topk_ends[sorted_indices], topk_scores[sorted_indices]
 
     def get_mention_embs_and_actions(self, example):
+        
         encoded_doc = self.doc_encoder(example)
         filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
-        
-        seg_length = 1000
-        N = encoded_doc.shape[0]
-        if seg_length > N:
-            indices = [N]
-        else:
-            splits = int(N//seg_length)
-            indices = [seg_length*i for i in range(1,splits+1)]
-        if N - indices[-1] <= 200:
-            indices[-1] = N
-        #pdb.set_trace()
-        for idx in range(len(indices)):
-          if idx == 0:
-            encoded_doc_seg = encoded_doc[:indices[idx]+100]
-            #filter out candidate starts >= indices[idx]
-            cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
-            cand_ends = filt_cand_ends[ (filt_cand_starts < indices[idx])]
-
-            #do get_pred_mention, create variable for mentions
-            pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
-
-          else:
-            #filter out candidate starts <indices[idx - 1]
-            #filter out candidate starts >= indices[idx]
-
-            encoded_doc_seg = encoded_doc[indices[idx - 1] - 100 : indices[idx] + 100]
-            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
-            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
-            #convert indices to segment indices  
-            cand_starts -= indices[idx - 1] - 100
-            cand_ends -= indices[idx - 1] - 100
+        if self.segmented == True:
+            seg_length = 1000
+            N = encoded_doc.shape[0]
+            if seg_length > N:
+                indices = [N]
+            else:
+                splits = int(N//seg_length)
+                indices = [seg_length*i for i in range(1,splits+1)]
+            if N - indices[-1] <= 200:
+                indices[-1] = N
             #pdb.set_trace()
-            # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
-            pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
-            #concatenate outputs
-            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 100))
-            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 100))
-            pred_scores = torch.cat((pred_scores, pred_scores_seg))
-          if (idx == range(len(indices))[-1]) & (indices[idx] != N):
-            encoded_doc_seg = encoded_doc[indices[idx] - 100 :]
+            for idx in range(len(indices)):
+              if idx == 0:
+                encoded_doc_seg = encoded_doc[:indices[idx]+100]
+                #filter out candidate starts >= indices[idx]
+                cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
+                cand_ends = filt_cand_ends[ (filt_cand_starts < indices[idx])]
 
-            #filter out candidate starts <indices[idx - 1]
-            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx]) ]
-            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx ])]
-            #convert indices
-            cand_starts -= indices[idx ] - 100
-            cand_ends -= indices[idx ] - 100
-            
-            # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
-            pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
-            #concatenate outputs
-            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx] - 100))
-            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx ] - 100))
-            pred_scores = torch.cat((pred_scores, pred_scores_seg))
+                #do get_pred_mention, create variable for mentions
+                pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
 
-       
+              else:
+                #filter out candidate starts <indices[idx - 1]
+                #filter out candidate starts >= indices[idx]
+
+                encoded_doc_seg = encoded_doc[indices[idx - 1] - 100 : indices[idx] + 100]
+                cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
+                cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
+                #convert indices to segment indices  
+                cand_starts -= indices[idx - 1] - 100
+                cand_ends -= indices[idx - 1] - 100
+                #pdb.set_trace()
+                # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
+                pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
+                #concatenate outputs
+                pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 100))
+                pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 100))
+                pred_scores = torch.cat((pred_scores, pred_scores_seg))
+              if (idx == range(len(indices))[-1]) & (indices[idx] != N):
+                encoded_doc_seg = encoded_doc[indices[idx] - 100 :]
+
+                #filter out candidate starts <indices[idx - 1]
+                cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx]) ]
+                cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx ])]
+                #convert indices
+                cand_starts -= indices[idx ] - 100
+                cand_ends -= indices[idx ] - 100
+
+                # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
+                pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
+                #concatenate outputs
+                pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx] - 100))
+                pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx ] - 100))
+                pred_scores = torch.cat((pred_scores, pred_scores_seg))
+
+        else:
+            pred_starts, pred_ends, pred_scores = self.get_pred_mentions(example, encoded_doc, filt_cand_starts, filt_cand_ends)
         # Sort the predicted mentions
         pred_mentions = list(zip(pred_starts.tolist(), pred_ends.tolist()))
         pred_scores = torch.unbind(torch.unsqueeze(pred_scores, dim=1))
