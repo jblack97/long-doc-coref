@@ -1,9 +1,9 @@
 from auto_memory_model.controller import *
 
 
-def pick_controller(mem_type='unbounded', dataset='litbank', device='cuda',segmented = False, **kwargs):
+def pick_controller(mem_type='unbounded', dataset='litbank', device='cuda',segmented = False, seg_length = 5000, **kwargs):
     if mem_type == 'learned':
-        model = LearnedFixedMemController(dataset=dataset, device=device, segmented = False, **kwargs).to(device)
+        model = LearnedFixedMemController(dataset=dataset, device=device, segmented = False, seg_length = seg_length, **kwargs).to(device)
     elif mem_type == 'lru':
         model = LRUController(dataset=dataset, device=device, **kwargs).to(device)
     elif mem_type == 'unbounded':
