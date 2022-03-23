@@ -161,7 +161,7 @@ class BaseController(nn.Module):
         indices = [seg_length*i for i in range(1,splits+1)]
         pdb.set_trace()
         for idx in range(len(indices)):
-          if idx == 1:
+          if idx == 0:
             encoded_doc_seg = encoded_doc[:indices[idx]+100]
             #filter out candidate starts >= indices[idx]
             cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
@@ -178,8 +178,8 @@ class BaseController(nn.Module):
             cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
             cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1]) & (filt_cand_starts < indices[idx])]
             #convert indices to segment indices  
-            cand_starts -= indices[idx - 1] - 10
-            cand_ends -= indices[idx - 1] - 10
+            cand_starts -= indices[idx - 1] - 100
+            cand_ends -= indices[idx - 1] - 100
             
             # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
             pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
