@@ -193,19 +193,20 @@ class BaseController(nn.Module):
             pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 100))
             pred_scores = torch.cat((pred_scores, pred_scores_seg))
           if (idx == range(len(indices))[-1]) & (indices[idx] != N):
-            enc_doc_seg = encoded_doc[indices[idx - 1] - 100 :]
+            encoded_doc_seg = encoded_doc[indices[idx] - 100 :]
 
             #filter out candidate starts <indices[idx - 1]
-            encoded_doc_seg = encoded_doc[indices[idx - 1] - 100 : indices[idx] + 100]
-            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx - 1]) ]
-            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx - 1])]
-            
+            cand_starts = filt_cand_starts[(filt_cand_starts >= indices[idx]) ]
+            cand_ends = filt_cand_ends[(filt_cand_starts >= indices[idx ])]
+            #convert indices
+            cand_starts -= indices[idx ] - 100
+            cand_ends -= indices[idx ] - 100
             
             # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
             pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
             #concatenate outputs
-            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 100))
-            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 100))
+            pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx] - 100))
+            pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx ] - 100))
             pred_scores = torch.cat((pred_scores, pred_scores_seg))
 
        
