@@ -1,7 +1,7 @@
 from auto_memory_model.controller import *
 
 
-def pick_controller(mem_type='unbounded', dataset='litbank', device='cuda', **kwargs):
+def pick_controller(mem_type='unbounded', dataset='litbank', device='cuda',segmented = False, **kwargs):
     if mem_type == 'learned':
         model = LearnedFixedMemController(dataset=dataset, device=device, segmented = False, **kwargs).to(device)
     elif mem_type == 'lru':
