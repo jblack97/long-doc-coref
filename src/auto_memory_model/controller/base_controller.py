@@ -156,13 +156,13 @@ class BaseController(nn.Module):
         encoded_doc = self.doc_encoder(example)
         filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
         if self.segmented == True:
-            seg_length = 1000
+            N = self.
             N = encoded_doc.shape[0]
-            if seg_length > N:
+            if self.seg_length > N:
                 indices = [N]
             else:
-                splits = int(N//seg_length)
-                indices = [seg_length*i for i in range(1,splits+1)]
+                splits = int(N//self.seg_length)
+                indices = [self.seg_length*i for i in range(1,splits+1)]
             if N - indices[-1] <= 200:
                 indices[-1] = N
             #pdb.set_trace()
