@@ -8,13 +8,13 @@ from inference.tokenize_doc import get_tokenized_doc, flatten
 
 
 class Inference:
-    def __init__(self, model_path, device=None, segmented = True):
+    def __init__(self, model_path, device=None, segmented = True, seg_length = 5000):
         if device is None:
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
             self.device = device
         checkpoint = torch.load(model_path, map_location=self.device)
-        self.model = pick_controller(device=self.device, segmented = segmented, **checkpoint['model_args']).to(self.device)
+        self.model = pick_controller(device=self.device, segmented = segmented, seg_length = seg_lenth,**checkpoint['model_args']).to(self.device)
         print(checkpoint['model_args'])
         self.model.load_state_dict(checkpoint['model'], strict=False)
         self.model.eval()  # Eval mode
