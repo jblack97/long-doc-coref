@@ -8,7 +8,7 @@ from inference.tokenize_doc import get_tokenized_doc, flatten
 
 
 class Inference:
-    def __init__(self, model_path, device=None, segemented = True):
+    def __init__(self, model_path, device=None, segmented = True):
         if device is None:
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         else:
