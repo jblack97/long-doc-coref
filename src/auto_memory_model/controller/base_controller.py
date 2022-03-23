@@ -155,6 +155,7 @@ class BaseController(nn.Module):
         
         encoded_doc = self.doc_encoder(example)
         filt_cand_starts, filt_cand_ends = self.get_candidate_endpoints(encoded_doc, example)
+        pdb.set_trace()
         if self.segmented == True:
             N = encoded_doc.shape[0]
             if self.seg_length > N:
