@@ -185,7 +185,7 @@ class BaseController(nn.Module):
             #convert indices to segment indices  
             cand_starts -= indices[idx - 1] - 100
             cand_ends -= indices[idx - 1] - 100
-            pdb.set_trace()
+            #pdb.set_trace()
             # do get_pred_mention, convert output indices by adding indices[idx - 1] - 10 
             pred_starts_seg, pred_ends_seg, pred_scores_seg = self.get_pred_mentions(example, encoded_doc_seg, cand_starts, cand_ends)
             #concatenate outputs
