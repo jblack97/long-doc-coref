@@ -14,7 +14,7 @@ class Inference:
         else:
             self.device = device
         checkpoint = torch.load(model_path, map_location=self.device)
-        self.model = pick_controller(device=self.device, segmented = segmented, seg_length = seg_lenth,**checkpoint['model_args']).to(self.device)
+        self.model = pick_controller(device=self.device, segmented = segmented, seg_length = seg_length,**checkpoint['model_args']).to(self.device)
         print(checkpoint['model_args'])
         self.model.load_state_dict(checkpoint['model'], strict=False)
         self.model.eval()  # Eval mode
