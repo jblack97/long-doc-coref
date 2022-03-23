@@ -161,7 +161,7 @@ class BaseController(nn.Module):
         indices = [seg_length*i for i in range(1,splits+1)]
         pdb.set_trace()
         for idx in range(len(indices)):
-          if idx == 0:
+          if idx == 1:
             encoded_doc_seg = encoded_doc[:indices[idx]+100]
             #filter out candidate starts >= indices[idx]
             cand_starts = filt_cand_starts[ (filt_cand_starts < indices[idx])]
