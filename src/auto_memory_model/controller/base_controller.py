@@ -157,9 +157,14 @@ class BaseController(nn.Module):
         
         seg_length = 1000
         N = encoded_doc.shape[0]
-        splits = int(N//seg_length)
-        indices = [seg_length*i for i in range(1,splits+1)]
-        pdb.set_trace()
+        if seg_length > N:
+            indices = [N]
+        else:
+            splits = int(N//seg_length)
+            indices = [seg_length*i for i in range(1,splits+1)]
+        if N - indices[-1] <= 200:
+            indices[-1] = N
+        #pdb.set_trace()
         for idx in range(len(indices)):
           if idx == 0:
             encoded_doc_seg = encoded_doc[:indices[idx]+100]
@@ -187,7 +192,7 @@ class BaseController(nn.Module):
             pred_starts = torch.cat((pred_starts,pred_starts_seg + indices[idx - 1] - 100))
             pred_ends = torch.cat((pred_ends,pred_ends_seg + indices[idx - 1] - 100))
             pred_scores = torch.cat((pred_scores, pred_scores_seg))
-          if (idx == indices[-1]) & (indices[idx] != N):
+          if (idx == range(len(indices))[-1]) & (indices[idx] != N):
             enc_doc_seg = encoded_doc[indices[idx - 1] - 100 :]
 
             #filter out candidate starts <indices[idx - 1]
