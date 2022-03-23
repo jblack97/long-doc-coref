@@ -9,7 +9,7 @@ from pytorch_utils.label_smoothing import LabelSmoothingLoss
 
 
 class LearnedFixedMemController(BaseController):
-    def __init__(self, num_cells=10, over_loss_wt=1.0, new_ent_wt=1.0, **kwargs):
+    def __init__(self, num_cells=10, over_loss_wt=1.0, new_ent_wt=1.0, segmented = False, **kwargs):
         super(LearnedFixedMemController, self).__init__(**kwargs)
         self.memory_net = LearnedFixedMemory(
             num_cells=num_cells, hsize=self.ment_emb_to_size_factor[self.ment_emb] * self.hsize + self.emb_size,
@@ -20,7 +20,7 @@ class LearnedFixedMemController(BaseController):
         self.over_loss_wt = over_loss_wt
         # Set loss functions
         self.loss_fn = {}
-
+        self.segmented = segmented
         self.coref_loss_wts = torch.tensor([1.0] * self.num_cells + [self.new_ent_wt]).to(self.device)
 
         self.over_loss_wts = torch.tensor([1.0] * (self.num_cells + 2)).to(self.device)
