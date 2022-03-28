@@ -57,7 +57,6 @@ class BaseController(nn.Module):
         self.span_width_mlp = MLP(input_size=self.emb_size, hidden_size=self.mlp_size,
                                   output_size=1, num_hidden_layers=1, bias=True,
                                   drop_module=self.drop_module)
-        pdb.set_trace()
         self.memory_net = None
         self.loss_fn = {}
         
@@ -133,7 +132,7 @@ class BaseController(nn.Module):
         
         #pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
-
+        pdb.set_trace()
         mention_logits = torch.squeeze(self.mention_mlp(span_embs), dim=-1)
         # Span embeddings not needed anymore
         del span_embs
