@@ -1,7 +1,8 @@
 import torch.nn as nn
-
+import pdb
 
 class MLP(nn.Module):
+    pdb.set_trace()
     def __init__(self, input_size, hidden_size, output_size,
                  num_hidden_layers=1, bias=False, drop_module=None):
         super(MLP, self).__init__()
