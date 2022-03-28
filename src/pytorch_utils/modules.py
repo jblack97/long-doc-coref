@@ -6,7 +6,6 @@ class MLP(nn.Module):
                  num_hidden_layers=1, bias=False, drop_module=None):
         
         super(MLP, self).__init__()
-        pdb.set_trace()
         self.layer_list = []
 
         self.activation = nn.ReLU()
