@@ -137,7 +137,6 @@ class BaseController(nn.Module):
         
         #pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
-        pdb.set_trace()
         mention_logits = torch.squeeze(self.mention_mlp(span_embs), dim=-1)
         # Span embeddings not needed anymore
         del span_embs
