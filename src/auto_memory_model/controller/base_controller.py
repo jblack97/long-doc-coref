@@ -49,16 +49,13 @@ class BaseController(nn.Module):
         # Mention modeling part
         self.span_width_embeddings = nn.Embedding(self.max_span_width, self.emb_size)
         self.span_width_prior_embeddings = nn.Embedding(self.max_span_width, self.emb_size)
-        '''
+        
         self.mention_mlp = MLP(input_size=self.ment_emb_to_size_factor[self.ment_emb] * self.hsize + self.emb_size,
                                hidden_size=self.mlp_size,
                                output_size=1, num_hidden_layers=1, bias=True,
                                drop_module=self.drop_module)
-        '''
-        self.mention_mlp = MLP(input_size= 2068,
-                               hidden_size=self.mlp_size,
-                               output_size=1, num_hidden_layers=1, bias=True,
-                               drop_module=self.drop_module)
+        
+
         self.span_width_mlp = MLP(input_size=self.emb_size, hidden_size=self.mlp_size,
                                   output_size=1, num_hidden_layers=1, bias=True,
                                   drop_module=self.drop_module)
@@ -135,7 +132,6 @@ class BaseController(nn.Module):
         
         
         
-        pdb.set_trace()
         span_embs = self.get_span_embeddings(encoded_doc, filt_cand_starts, filt_cand_ends)
        
         mention_logits = torch.squeeze(self.mention_mlp(span_embs), dim=-1)
