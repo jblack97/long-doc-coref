@@ -49,7 +49,7 @@ class BaseController(nn.Module):
         # Mention modeling part
         self.span_width_embeddings = nn.Embedding(self.max_span_width, self.emb_size)
         self.span_width_prior_embeddings = nn.Embedding(self.max_span_width, self.emb_size)
-        
+        pdb.set_trace()
         self.mention_mlp = MLP(input_size=self.ment_emb_to_size_factor[self.ment_emb] * self.hsize + self.emb_size,
                                hidden_size=self.mlp_size,
                                output_size=1, num_hidden_layers=1, bias=True,
