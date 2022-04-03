@@ -14,7 +14,7 @@ class BaseMemory(nn.Module):
         self.device = device
 
         self.dataset = dataset
-        if self.dataset == 'litbank':
+        if (self.dataset == 'litbank') | (self.dataset == 'litbank_person_only'):
             self.num_feats = 3
         elif self.dataset == 'ontonotes':
             self.num_feats = 4
