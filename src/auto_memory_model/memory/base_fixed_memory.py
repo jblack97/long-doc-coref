@@ -27,7 +27,7 @@ class BaseFixedMemory(BaseMemory):
         pred_max2_idx = torch.argmax(coref_new_scores1).item()
         coref_new_scores2 = torch.cat([coref_new_scores1[0:pred_max2_idx], coref_new_scores1[pred_max2_idx+1:]])
         pred_max3_idx = torch.argmax(coref_new_scores2).item()
-        if len(coref_new_scores[coref_new_scores > 0]) > 3:
+        
         if (coref_new_scores2[pred_max3_idx] > (0.2* coref_new_scores[pred_max_idx])) & (coref_new_scores1[pred_max2_idx] > (0.8* coref_new_scores[pred_max_idx])):
             return -1, 'i'
         if pred_max_idx < self.num_cells:
