@@ -81,7 +81,7 @@ class BaseController(nn.Module):
             del doc_range
             del ment_starts
             del ment_ends
-
+            pdb.set_trace()
             word_attn = torch.squeeze(self.mention_attn(encoded_doc), dim=1)  # [T]
             mention_word_attn = nn.functional.softmax(
                 (1 - ment_masks.float()) * (-1e10) + torch.unsqueeze(word_attn, dim=0), dim=1)  # [C x T]
